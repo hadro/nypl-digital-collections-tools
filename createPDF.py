@@ -117,7 +117,7 @@ for i in range(number_of_captures):
 	i+=1
 print "text file with image IDs created at "+title+'.txt!'
 
-# #Create the two kinds of derivs in the item-title folder
+# #Create the derivs in the item-title folder
 img_url_base = "http://images.nypl.org/index.php?id="
 derivs = [PDF_deriv_type]
 
@@ -131,6 +131,6 @@ for j in derivs:
 			print "file %s as %s deriv type already exists" % (captures[i], j)
 			i+=1
 
-#Make PDF using Imagemagick Convert. N.B. This can get messed up if capture names are not always be in sequential order; something to fix down the road.
+#Make PDF using Imagemagick Convert. N.B. This can get messed up if capture names are not always in sequential order; something to fix down the road.
 os.system("convert -verbose -density 72x72 -quality 90 -resize 50%\ ls ./"+title+"/*"+PDF_deriv_type+".jpg "+title+"/"+title+".pdf")
 print "PDF created from %s deriv jpg output" % (PDF_deriv_type)
