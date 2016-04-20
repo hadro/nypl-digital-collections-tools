@@ -1,7 +1,6 @@
 # Create a PDF given an item UUID for an item in NYPL's Digital Collections
 
 import requests
-import configparser
 import urllib
 import os.path
 import string
