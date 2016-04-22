@@ -45,8 +45,8 @@ print "Downloading..."
 
 for j in derivs:
 	for i in range(int(captures_start),int(captures_end)+1):
-		if not os.path.isfile(title+'/'+str("%04d" %i)+'_'+str(i)+str(j)+'.jpg'):
-			urllib.urlretrieve(img_url_base+str(i)+'&t='+str(j),title+'/'+str("%04d" %i)+'_'+str(i)+str(j)+'.jpg')
+		if not os.path.isfile(title+'/'+str(i)+str(j)+'.jpg'):
+			urllib.urlretrieve(img_url_base+str(i)+'&t='+str(j),title+'/'+str(i)+str(j)+'.jpg')
 			print i, j, "of", ((captures_end+1) - (captures_start))
 			i+=1
 		else:
