@@ -41,6 +41,8 @@ if not os.path.exists(title):
 img_url_base = "http://images.nypl.org/index.php?id="
 derivs = [PDF_deriv_type]
 
+print "Downloading..."
+
 for j in derivs:
 	for i in range(int(captures_start),int(captures_end)+1):
 		if not os.path.isfile(title+'/'+str("%04d" %i)+'_'+str(i)+str(j)+'.jpg'):
