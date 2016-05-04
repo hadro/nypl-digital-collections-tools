@@ -132,5 +132,5 @@ for j in derivs:
 			i+=1
 
 #Make PDF using Imagemagick Convert. N.B. This can get messed up if capture names are not always in sequential order; something to fix down the road.
-os.system("convert -verbose -density 72x72 -quality 90 -resize 50%\ ls ./"+title+"/*"+PDF_deriv_type+".jpg "+title+"/"+title+".pdf")
+os.system("convert -verbose -density 72x72 -quality 90 -resize 50% ./"+title+"/*"+PDF_deriv_type+".jpg "+title+"/"+title+".pdf")
 print "PDF created from %s deriv jpg output" % (PDF_deriv_type)
