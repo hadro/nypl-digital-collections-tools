@@ -6,11 +6,12 @@ import os.path
 import string
 import sys
 import subprocess
+import config as cfg
 
 #Aside from the modules above, you'll need to get an API key for the NYPL metadata API -- available here: http://api.repo.nypl.org/sign_up
 
 #Paste the token you'll get via email below
-token = ''
+token = cfg.api_token
 base = 'http://api.repo.nypl.org/api/v1/'
 
 
