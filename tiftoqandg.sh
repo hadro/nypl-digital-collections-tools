@@ -1,16 +1,16 @@
 #convert TIF into G and Q derivatives
-PROJECT=quinn
-DIRECTORY=quinn
+PROJECT=sasbtest2
+DIRECTORY=sasbtest2
 DERIV_TYPE_FOR_OCR=g
 DERIV_TYPE_FOR_PDF=q
 DERIV_TYPE_FOR_TIF=u
 
-echo $DIRECTORY
-ls ./$DIRECTORY/001*$DERIV_TYPE_FOR_TIF.tif
+echo ./files/$DIRECTORY
+ls ./files/$DIRECTORY/*$DERIV_TYPE_FOR_TIF.tif
 
-ls $DIRECTORY/001*$DERIV_TYPE_FOR_TIF.tif | time parallel -j+0 --eta 'convert -verbose {} -resize "1600x1600>" {.}q.jpg'
+ls ./files/$DIRECTORY/*$DERIV_TYPE_FOR_TIF.tif | time parallel -j+0 --eta 'convert -verbose {} -resize "1600x1600>" {.}q.jpg'
 
-ls $DIRECTORY/001*$DERIV_TYPE_FOR_TIF.tif | time parallel -j+0 --eta 'convert -verbose {} {.}g.jpg'
+ls ./files/$DIRECTORY/*$DERIV_TYPE_FOR_TIF.tif | time parallel -j+0 --eta 'convert -verbose {} {.}g.jpg'
 
 # ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel -j+0 --eta 'tesseract -l eng {} {.} hocr >/dev/null'
 

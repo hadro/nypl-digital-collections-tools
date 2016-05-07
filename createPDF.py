@@ -106,14 +106,14 @@ title = title[:65].rpartition('_')[0]
 print "folder title will be '"+title+"'"
 
 #Create folder based on the item title
-if not os.path.exists(title):
-    os.makedirs(title)
+if not os.path.exists('files/'+title):
+    os.makedirs('files/'+title)
 
-open(title+'/'+title+'.txt', 'w')
+open('files/'+title+'/'+title+'.txt', 'w')
 
 # write image IDs to a file
 for i in range(number_of_captures):
-	with open(title+'/'+title+'.txt', 'a') as myfile:
+	with open('files/'+title+'/'+title+'.txt', 'a') as myfile:
 		myfile.write(captures[i]+'\n')
 	i+=1
 print "text file with image IDs created at "+title+'.txt!'
@@ -124,8 +124,8 @@ derivs = [PDF_deriv_type]
 
 for j in derivs:
 	for i in range(number_of_captures):
-		if not os.path.isfile(title+'/'+str("%04d" %i)+'_'+str(captures[i])+str(j)+'.jpg'):
-			urllib.urlretrieve(img_url_base+str(captures[i])+'&t='+str(j),title+'/'+str("%04d" %i)+'_'+str(captures[i])+str(j)+'.jpg')
+		if not os.path.isfile('files/'+title+'/'+str("%04d" %i)+'_'+str(captures[i])+str(j)+'.jpg'):
+			urllib.urlretrieve(img_url_base+str(captures[i])+'&t='+str(j), 'files/'+title+'/'+str("%04d" %i)+'_'+str(captures[i])+str(j)+'.jpg')
 			print captures[i], j, i+1, "of", number_of_captures
 			i+=1
 		else:
@@ -133,5 +133,5 @@ for j in derivs:
 			i+=1
 
 #Make PDF using Imagemagick Convert. N.B. This can get messed up if capture names are not always in sequential order; something to fix down the road.
-os.system("convert -verbose -density 72x72 -quality 90 -resize 50% ./"+title+"/*"+PDF_deriv_type+".jpg "+title+"/"+title+".pdf")
+os.system("convert -verbose -density 72x72 -quality 90 -resize 50% ./files/"+title+"/*"+PDF_deriv_type+".jpg ./files/"+title+"/"+title+".pdf")
 print "PDF created from %s deriv jpg output" % (PDF_deriv_type)

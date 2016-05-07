@@ -34,8 +34,8 @@ print "folder title will be '"+title+"'"
 
 
 #Create folder based on the item title
-if not os.path.exists(title):
-    os.makedirs(title)
+if not os.path.exists('files/'+title):
+    os.makedirs('files/'+title)
 
 # #Create the derivs in the item-title folder
 img_url_base = "http://images.nypl.org/index.php?id="
@@ -45,8 +45,8 @@ print "Downloading..."
 
 for j in derivs:
 	for i in range(int(captures_start),int(captures_end)+1):
-		if not os.path.isfile(title+'/'+str(i)+str(j)+'.jpg'):
-			urllib.urlretrieve(img_url_base+str(i)+'&t='+str(j),title+'/'+str(i)+str(j)+'.jpg')
+		if not os.path.isfile('files/'+title+'/'+str(i)+str(j)+'.jpg'):
+			urllib.urlretrieve(img_url_base+str(i)+'&t='+str(j),'files/'+title+'/'+str(i)+str(j)+'.jpg')
 			print i, j, "of", ((captures_end+1) - (captures_start))
 			i+=1
 		else:
@@ -54,5 +54,5 @@ for j in derivs:
 			i+=1
 
 #Make PDF using Imagemagick Convert. N.B. This can get messed up if capture names are not always in sequential order; something to fix down the road.
-os.system("convert -verbose -density 72x72 -quality 90 -resize 50%\ ls ./"+title+"/*"+PDF_deriv_type+".jpg "+title+"/"+title+".pdf")
+os.system("convert -verbose -density 72x72 -quality 90 -resize 50% ./files/"+title+"/*"+PDF_deriv_type+".jpg ./files/"+title+"/"+title+".pdf")
 print "PDF created from %s deriv jpg output" % (PDF_deriv_type)

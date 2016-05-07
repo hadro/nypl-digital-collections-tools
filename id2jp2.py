@@ -10,17 +10,7 @@ import subprocess
 captures_start = int(raw_input('Enter the first image id of the range here: '))
 captures_end = int(raw_input('Enter the last image id of the range here: '))
 
-#Setting the derivative type -- these are the possible deriv type values:
-    # b - Center cropped thumbnail .jpeg (100x100 pixels)
-    # f - Cropped .jpeg (140 pixels tall with variable width)
-    # t - Cropped .gif (150 pixels on the long side)
-    # r - Cropped .jpeg (300 pixels on the long side)
-    # w - Cropped .jpeg (760 pixels on the long side)
-    # q - Cropped .jpeg (1600 pixels on the long side) N.B. Exists only for public domain assets
-    # v - Cropped .jpeg (2560 pixels on the long side) N.B. Exists only for public domain assets
-    # g - a "full-size" .jpeg derivative N.B. Exists only for public domain assets
-print 'For basic PDFs, best choice of derivative is going to be Q'
-jp2_deriv_type = raw_input('Enter a derivative type: ')
+jp2_deriv_type = 'j'
 
 
 #Make the item title, and do some cleanup to make it usable as a folder name
@@ -34,8 +24,8 @@ print "folder title will be '"+title+"'"
 
 
 #Create folder based on the item title
-if not os.path.exists(title):
-    os.makedirs(title)
+if not os.path.exists('files/'+title):
+    os.makedirs('files/'+title)
 
 # #Create the derivs in the item-title folder
 # #Create the two kinds of derivs in the item-title folder
@@ -46,8 +36,8 @@ print "Downloading..."
 
 for j in derivs:
 	for i in range(int(captures_start),int(captures_end)+1):
-		if not os.path.isfile(title+'/'+str("%04d" %i)+'_'+str(j)+'.jp2'):
-			urllib.urlretrieve(img_url_base+str(i)+'&t='+str(j)+'&download=1',title+'/'+str(i)+str(j)+'.jp2')
+		if not os.path.isfile('files/'+title+'/'+str("%04d" %i)+'_'+str(j)+'.jp2'):
+			urllib.urlretrieve(img_url_base+str(i)+'&t='+str(j)+'&download=1', 'files/'+title+'/'+str(i)+str(j)+'.jp2')
 			print j, i+1
 			i+=1
 		else:
