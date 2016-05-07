@@ -1,4 +1,4 @@
-# Create a PDF given an item UUID for an item in NYPL's Digital Collections
+# Download U files given a range of NYPL Digital Collections image IDs
 
 import requests
 import urllib

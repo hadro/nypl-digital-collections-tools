@@ -1,4 +1,4 @@
-# Create a PDF given an item UUID for an item in NYPL's Digital Collections
+# Download jp2s based on a range of image ids
 
 import requests
 import urllib
