@@ -1,36 +1,30 @@
-# Create a PDF given an item UUID for an item in NYPL's Digital Collections
-
 import requests
+import configparser
 import urllib
 import os.path
 import string
 import sys
+from time import sleep
 import subprocess
-import config as cfg
 
 #Aside from the modules above, you'll need to get an API key for the NYPL metadata API -- available here: http://api.repo.nypl.org/sign_up
 
 #Paste the token you'll get via email below
-token = cfg.api_token
+token = '4t2gkh9vetsh35av'
 base = 'http://api.repo.nypl.org/api/v1/'
 
 
 #Set UUID for the item you want to get the captures of
-#UUID = ''
+#UUID = 'de3c45b0-a30b-0131-2a1e-58d385a7b928'
 UUID = raw_input("What UUID please?")
 
-#Setting the derivative type -- these are the possible deriv type values:
-    # b - Center cropped thumbnail .jpeg (100x100 pixels)
-    # f - Cropped .jpeg (140 pixels tall with variable width)
-    # t - Cropped .gif (150 pixels on the long side)
-    # r - Cropped .jpeg (300 pixels on the long side)
-    # w - Cropped .jpeg (760 pixels on the long side)
-    # q - Cropped .jpeg (1600 pixels on the long side) N.B. Exists only for public domain assets
-    # v - Cropped .jpeg (2560 pixels on the long side) N.B. Exists only for public domain assets
-    # g - a "full-size" .jpeg derivative N.B. Exists only for public domain assets
+
+#Setting some variables up top
+
 #Solicit the UUID from the users
-print 'For basic PDFs, best choice of derivative is going to be Q'
-PDF_deriv_type = raw_input('Enter a derivative type: ')
+#UUID = raw_input('Enter a file name: ')
+OCR_deriv_type = "w"
+PDF_deriv_type = "w"
 
 #Make sure it's a valid UUID
 if len(UUID) != 36:
@@ -41,17 +35,17 @@ else:
 
 #function to get captures for a given UUID
 def getCaptures(uuid):
-    url = base + 'items/' + uuid + '?withTitles=yes&per_page=1200'
+    url = base + 'items/' + uuid + '?withTitles=yes&per_page=1000'
     call = requests.get(url, headers={'Authorization ':'Token token=' + token})
     return call.json()
 
 def getItem(uuid):
-	url = base + 'items/mods/' + uuid + '?per_page=1200'
+	url = base + 'items/mods/' + uuid + '?per_page=1000'
 	call = requests.get(url, headers={'Authorization':'Token token=' + token}) 
 	return call.json()
 
 def getContainer(uuid):
-	url = base + '/collections/' + uuid + '?per_page=1200'
+	url = base + '/collections/' + uuid + '?per_page=1000'
 	call = requests.get(url, headers={'Authorization':'Token token=' + token}) 
 	return call.json()
 
@@ -92,12 +86,12 @@ for i in range(number_of_captures):
 #print captures
 
 #Check to see if there are derivs large enough to use to get good OCR results
-# high_res_captures = itemResponse['nyplAPI']['response']['capture'][0]['imageLinks']['imageLink']
+high_res_captures = itemResponse['nyplAPI']['response']['capture'][0]['imageLinks']['imageLink']
 
-# if ("t="+str(PDF_deriv_type)) in str(high_res_captures):
-# 	print "Good news! This item has deriv type you're looking for!"
-# else:
-# 	sys.exit(":-( the requested derivs for this item are missing, make sure this is a public domain item?")
+if ("t=g") in str(high_res_captures):
+	print "Good news! This item has high-res captures"
+else:
+	sys.exit(":-( the g derivs for this item are missing, make sure this is a public domain item?")
 
 #Grab the item title, and do some cleanup to make it usable as a folder name
 table = string.maketrans("","")
@@ -106,35 +100,50 @@ title = title[:65].rpartition('_')[0]
 print "folder title will be '"+title+"'"
 
 #Create folder based on the item title
-if not os.path.exists('files/'+title):
-    os.makedirs('files/'+title)
+if not os.path.exists(title):
+    os.makedirs(title)
 
-open('files/'+title+'/'+title+'.txt', 'w')
+open(title+'/'+title+'.txt', 'w')
 
 # write image IDs to a file
 for i in range(number_of_captures):
-	with open('files/'+title+'/'+title+'.txt', 'a') as myfile:
+	with open(title+'/'+title+'.txt', 'a') as myfile:
 		myfile.write(captures[i]+'\n')
 	i+=1
 print "text file with image IDs created at "+title+'.txt!'
 
-# #Create the derivs in the item-title folder
-img_url_base = "http://images.nypl.org/index.php?id="
-derivs = [PDF_deriv_type]
+# # #Create the two kinds of derivs in the item-title folder
+# img_url_base = "http://images.nypl.org/index.php?id="
+# derivs = [OCR_deriv_type,PDF_deriv_type]
 
-for j in derivs:
-	for i in range(number_of_captures):
-		if not os.path.isfile('files/'+title+'/'+str("%04d" %i)+'_'+str(captures[i])+str(j)+'.jpg'):
-			urllib.urlretrieve(img_url_base+str(captures[i])+'&t='+str(j), 'files/'+title+'/'+str("%04d" %i)+'_'+str(captures[i])+str(j)+'.jpg')
-			print captures[i], j, i+1, "of", number_of_captures
-			i+=1
-		else:
-			print "file %s as %s deriv type already exists" % (captures[i], j)
-			i+=1
+# for j in derivs:
+# 	for i in range(number_of_captures):
+# 		if not os.path.isfile(title+'/'+str("%04d" %i)+'_'+str(captures[i])+str(j)+'.jpg'):
+# 			urllib.urlretrieve(img_url_base+str(captures[i])+'&t='+str(j),title+'/'+str("%04d" %i)+'_'+str(captures[i])+str(j)+'.jpg')
+# 			print captures[i], j, i+1, "of", number_of_captures
+# 			i+=1
+# 		else:
+# 			print "file %s as %s deriv type already exists" % (captures[i], j)
+# 			i+=1
 
-#Make PDF using Imagemagick Convert. N.B. This can get messed up if capture names are not always in sequential order; something to fix down the road.
-os.system("convert -verbose -density 72x72 -quality 90 -resize 50% ./files/"+title+"/*"+PDF_deriv_type+".jpg ./files/"+title+"/"+title+".pdf")
-# Higher res version:
-# os.system("convert -verbose -density 72x72 -quality 90 ./files/"+title+"/*"+PDF_deriv_type+".jpg ./files/"+title+"/"+title+".pdf")
 
-print "PDF created from %s deriv jpg output" % (PDF_deriv_type)
+# #BASH COMMAND BELOW
+# # bashCommand = "cwm --rdf test.rdf --ntriples > test.nt"
+# # import subprocess
+# # process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+
+# # DERIV_TYPE_FOR_OCR=g
+# # DERIV_TYPE_FOR_PDF=q
+
+# #convert = "convert -verbose -density 72x72 -quality 90 -resize 50%\ ls ./"+title+"/*"+PDF_deriv_type+".jpg "+title+"/"+title+".pdf"
+
+# # for 
+
+# # os.system("convert -verbose -density 72x72 -quality 90 -resize 50%\ ls ./"+title+"/*"+PDF_deriv_type+".jpg "+title+"/"+title+".pdf")
+# # print "PDF created from $DERIV_TYPE_FOR_PDF deriv jpg output"
+
+# # os.system(ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel -j+0 --eta 'tesseract -l eng {} {.} hocr >/dev/null'
+# # ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr | parallel -j+0 --eta 'python3 /usr/local/lib/python3.5/site-packages/ocrmypdf/hocrTransform.py -r 600 {} {.}.pdf' 
+# rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr
+# rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.txt
+# echo "done with hocr files for $DIRECTORY")

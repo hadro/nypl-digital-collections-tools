@@ -23,10 +23,16 @@ DERIV_TYPE_FOR_PDF=q
 
 #Make PDF using Imagemagick Convert, using created date sort not alpha sort since capture names might not always be in sequential order:
 
-# time convert -verbose -density 72x72 -quality 90 -resize 50% `ls ./$DIRECTORY/*\$DERIV_TYPE_FOR_PDF.jpg` $DIRECTORY/$PROJECT.pdf
-# Use the below line if the above is too low-res
-# time convert -verbose -density 72x72 `ls ./$DIRECTORY/*\$DERIV_TYPE_FOR_PDF.jpg` $DIRECTORY/$PROJECT.pdf
-echo "PDF created from $DERIV_TYPE_FOR_PDF deriv jpg output"
+if [ -f "$DIRECTORY/$PROJECT.pdf" ]
+then
+	echo "$PROJECT.pdf found."
+else
+	time convert -verbose -density 72x72 -quality 90 -resize 50% `ls ./$DIRECTORY/*\$DERIV_TYPE_FOR_PDF.jpg` $DIRECTORY/$PROJECT.pdf
+	# Use the below line if the above is too low-res
+	# time convert -verbose -density 72x72 `ls ./$DIRECTORY/*\$DERIV_TYPE_FOR_PDF.jpg` $DIRECTORY/$PROJECT.pdf
+	echo "PDF created from $DERIV_TYPE_FOR_PDF deriv jpg output"
+fi
+
 
 # OCR
 
@@ -55,9 +61,10 @@ echo "PDF created from $DERIV_TYPE_FOR_PDF deriv jpg output"
 # time parallel -j+0 --eta 'python3 /usr/local/lib/python3.5/site-packages/ocrmypdf/hocrTransform.py -r 600 {} {.}.pdf' ::: $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr 
 
 time ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel -j+0 --eta 'tesseract -l eng {} {.} hocr >/dev/null'
+time ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel -j+0 --eta 'tesseract -l eng {} {.} txt >/dev/null'
 time ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr | parallel -j+0 --eta 'python3 /usr/local/lib/python3.5/site-packages/ocrmypdf/hocrTransform.py -r 600 {} {.}.pdf' 
-#rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr
-#rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.txt
+# #rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr
+# #rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.txt
 echo "done with hocr files for $DIRECTORY"
 
 # # Join PDF files into one file that contains all OCR backgrounds
@@ -69,7 +76,7 @@ echo "done with pdftk part 1"
 # Merge OCR background PDF into the main PDF document
 time pdftk $DIRECTORY/$PROJECT.pdf multibackground $DIRECTORY/$PROJECT\_ocr.pdf output $DIRECTORY/$PROJECT\_final.pdf
 #rm $DIRECTORY/$PROJECT\_ocr.pdf
-mv $DIRECTORY/$PROJECT\_final.pdf $DIRECTORY/$PROJECT.pdf
+#mv $DIRECTORY/$PROJECT\_final.pdf $DIRECTORY/$PROJECT.pdf
 
 echo "done with pdftk part 2";
 

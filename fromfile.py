@@ -8,9 +8,11 @@ import sys
 import subprocess
 
 
-fname = raw_input('Enter the name of the file that has the captures (one capture per line): ')
 
 folder_name = raw_input('Enter the name of the folder where you want the captures to go: ')
+
+fname = './files/'+folder_name+'/'+folder_name+'.txt'
+
 
 
 
@@ -36,8 +38,8 @@ j = 1
 
 for i in captures:
 
-	if not os.path.isfile('files/'+folder_name+'/'+str("%04d" % j)+'_'+str(i)+str(deriv_type)+'.jp2'):
-		urllib.urlretrieve(img_url_base+str(i)+'&t='+str(deriv_type)+'&download=1', 'files/'+folder_name+'/'+str("%04d" % j)+'_'+str(i)+str(deriv_type)+'.jp2')
+	if not os.path.isfile('files/'+folder_name+'/'+str("%04d" % j)+'_'+str(i)+str(deriv_type)+'.tif'):
+		urllib.urlretrieve(img_url_base+str(i)+'&t='+str(deriv_type)+'&download=1', 'files/'+folder_name+'/'+str("%04d" % j)+'_'+str(i)+str(deriv_type)+'.tif')
 		print "%s done, %s of %s" % (int(i), j, len(captures))
 		j +=1
 	else:

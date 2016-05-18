@@ -12,4 +12,4 @@ DERIV_TYPE_FOR_BITONAL=g
 echo ./files/$DIRECTORY
 ls ./files/$DIRECTORY/*$DERIV_TYPE_FOR_BITONAL.jpg
 
-time parallel --eta convert -verbose {} -threshold 82% {.}_bitonal.jpg ::: ./files/$DIRECTORY/*$DERIV_TYPE_FOR_BITONAL.jpg
+time parallel --eta convert -verbose {} -threshold 54% {.}_bitonal.jpg ::: ./files/$DIRECTORY/*$DERIV_TYPE_FOR_BITONAL.jpg

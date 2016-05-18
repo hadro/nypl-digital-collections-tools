@@ -13,5 +13,4 @@ echo ./files/$DIRECTORY
 ls ./files/$DIRECTORY/*$DERIV_TYPE_FOR_TIF.tif
 
 ls ./files/$DIRECTORY/*$DERIV_TYPE_FOR_TIF.tif | time parallel -j+0 --eta 'convert -verbose {} -resize "1600x1600>" {.}q.jpg'
-
 ls ./files/$DIRECTORY/*$DERIV_TYPE_FOR_TIF.tif | time parallel -j+0 --eta 'convert -verbose {} {.}g.jpg'
