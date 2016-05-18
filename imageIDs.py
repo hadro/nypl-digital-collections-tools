@@ -17,7 +17,7 @@ import re
 #API key available here: http://api.repo.nypl.org/sign_up
 
 #Paste the API token you got via email
-token = '4t2gkh9vetsh35av'
+token = cfg.api_token
 
 #Set UUID for the item you want to get the captures of
 #uuid = 'e3e5b110-87d8-0133-ea09-00505686d14e'
