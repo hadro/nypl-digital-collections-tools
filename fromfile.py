@@ -32,7 +32,7 @@ captures = [line.rstrip('\n') for line in open(fname)]
 
 print captures
 
-img_url_base = "http://images.nypl.org/index.josh.php?id="
+img_url_base = "http://images.nypl.org/index.php?id="
 
 j = 1
 
