@@ -12,14 +12,18 @@
 # - fix sort for the cases where item captures aren't in chronological order DONE
 # - figure out paging in order to deal with those cases where items will have more than 500 captures (do we want to deal with these cases?)
 
-# #run the scrape script to gather the derivatives that feed the PDF and OCR processes
-#python scrape2.py
-
 #set some variables for the rest of the script
 PROJECT=$1
 DIRECTORY=./files/$1
 DERIV_TYPE_FOR_OCR=bitonal
 DERIV_TYPE_FOR_PDF=q
+
+
+# #run the scrape script to gather the derivatives that feed the PDF and OCR processes
+#python scrape.py $PROJECT
+
+#Make bitonal files!
+sh bitonal.sh $PROJECT
 
 #Make PDF using Imagemagick Convert, using created date sort not alpha sort since capture names might not always be in sequential order:
 
@@ -60,8 +64,16 @@ fi
 
 # time parallel -j+0 --eta 'python3 /usr/local/lib/python3.5/site-packages/ocrmypdf/hocrTransform.py -r 600 {} {.}.pdf' ::: $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr 
 
-time ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel -j+0 --eta 'tesseract -l eng {} {.} hocr >/dev/null'
-time ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel -j+0 --eta 'tesseract -l eng {} {.} txt >/dev/null'
+#time ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel -j+0 --eta 'tesseract -l eng {} {.} hocr >/dev/null'
+#time ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel -j+0 --eta 'tesseract -l eng {} {.} txt >/dev/null'
+
+
+#USE DISTRIBUTED COMPUTING POWERS!
+sh distributed.sh $PROJECT
+
+
+
+
 time ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr | parallel -j+0 --eta 'python3 /usr/local/lib/python3.5/site-packages/ocrmypdf/hocrTransform.py -r 600 {} {.}.pdf' 
 # #rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr
 # #rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.txt
@@ -81,8 +93,6 @@ time pdftk $DIRECTORY/$PROJECT.pdf multibackground $DIRECTORY/$PROJECT\_ocr.pdf 
 echo "done with pdftk part 2";
 
 echo "You have now created and OCRed a PDF of $PROJECT. Good work!";
-
-
 
 #From Ryan Baumann: 
 #https://ryanfb.github.io/etc/2014/11/13/command_line_ocr_on_mac_os_x.html

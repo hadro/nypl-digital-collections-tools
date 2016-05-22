@@ -1,5 +1,5 @@
 import requests
-import configparser
+import config as cfg
 import urllib
 import os.path
 import string
@@ -23,8 +23,8 @@ UUID = raw_input("What UUID please?")
 
 #Solicit the UUID from the users
 #UUID = raw_input('Enter a file name: ')
-OCR_deriv_type = "w"
-PDF_deriv_type = "w"
+OCR_deriv_type = raw_input("What OCR deriv please?")
+PDF_deriv_type = raw_input("What PDF deriv please?")
 
 #Make sure it's a valid UUID
 if len(UUID) != 36:
@@ -83,6 +83,7 @@ for i in range(number_of_captures):
 	captureID = itemResponse['nyplAPI']['response']['capture'][i]['imageID']
 	captures.append(captureID)
 
+
 #print captures
 
 #Check to see if there are derivs large enough to use to get good OCR results
@@ -94,37 +95,6 @@ else:
 	sys.exit(":-( the g derivs for this item are missing, make sure this is a public domain item?")
 
 #Grab the item title, and do some cleanup to make it usable as a folder name
-table = string.maketrans("","")
-title = str(itemResponse['nyplAPI']['response']['capture'][0]['title']).translate(table, string.punctuation).replace("  "," ").replace(" ","_")
-title = title[:65].rpartition('_')[0]
-print "folder title will be '"+title+"'"
-
-#Create folder based on the item title
-if not os.path.exists(title):
-    os.makedirs(title)
-
-open(title+'/'+title+'.txt', 'w')
-
-# write image IDs to a file
-for i in range(number_of_captures):
-	with open(title+'/'+title+'.txt', 'a') as myfile:
-		myfile.write(captures[i]+'\n')
-	i+=1
-print "text file with image IDs created at "+title+'.txt!'
-
-# # #Create the two kinds of derivs in the item-title folder
-# img_url_base = "http://images.nypl.org/index.php?id="
-# derivs = [OCR_deriv_type,PDF_deriv_type]
-
-# for j in derivs:
-# 	for i in range(number_of_captures):
-# 		if not os.path.isfile(title+'/'+str("%04d" %i)+'_'+str(captures[i])+str(j)+'.jpg'):
-# 			urllib.urlretrieve(img_url_base+str(captures[i])+'&t='+str(j),title+'/'+str("%04d" %i)+'_'+str(captures[i])+str(j)+'.jpg')
-# 			print captures[i], j, i+1, "of", number_of_captures
-# 			i+=1
-# 		else:
-# 			print "file %s as %s deriv type already exists" % (captures[i], j)
-# 			i+=1
 
 
 # #BASH COMMAND BELOW
@@ -147,3 +117,40 @@ print "text file with image IDs created at "+title+'.txt!'
 # rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr
 # rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.txt
 # echo "done with hocr files for $DIRECTORY")
+
+table = string.maketrans("","")
+title = str(itemResponse['nyplAPI']['response']['capture'][0]['title']).translate(table, string.punctuation).replace("  "," ").replace(" ","_")
+title = title[:100]+'_'+UUID #.rpartition('_')[0]
+print "folder title will be '"+title+"'"
+
+#Create folder based on the item title
+if not os.path.exists('files/'+title):
+    os.makedirs('files/'+title)
+
+open('files/'+title+'/'+title+'.txt', 'w')
+
+# write image IDs to a file
+for i in range(number_of_captures):
+	with open('files/'+title+'/'+title+'.txt', 'a') as myfile:
+		myfile.write(captures[i]+'\n')
+	i+=1
+print "text file with image IDs created at "+title+'.txt!'
+
+# #Create the derivs in the item-title folder
+img_url_base = "http://images.nypl.org/index.php?id="
+derivs = [PDF_deriv_type, OCR_deriv_type]
+
+for j in derivs:
+	for i in range(number_of_captures):
+		if not os.path.isfile('files/'+title+'/'+str("%04d" %i)+'_'+str(captures[i])+str(j)+'.jpg'):
+			urllib.urlretrieve(img_url_base+str(captures[i])+'&t='+str(j), 'files/'+title+'/'+str("%04d" %i)+'_'+str(captures[i])+str(j)+'.jpg')
+			print captures[i], j, i+1, "of", number_of_captures
+			i+=1
+		else:
+			print "file %s as %s deriv type already exists" % (captures[i], j)
+			i+=1
+
+
+os.system("sh OCRmyPDF.sh "+title)
+
+print "The whole process should be done now!"
