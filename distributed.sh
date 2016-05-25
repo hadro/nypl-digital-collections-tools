@@ -21,10 +21,21 @@ time ls ./files/$DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel --eta --sshloginf
      --cleanup \
      "echo {} running on \`hostname\`; /usr/local/bin/tesseract -l eng {} {.} hocr >/dev/null; echo {.}.hocr"
 
+###
+##For txt files
+###
 
-time ls ./files/$DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel --eta --sshloginfile nodeslist \
-     --transfer \
-     --return {.}.txt \
-     --cleanup \
-     "echo {} running on \`hostname\`; /usr/local/bin/tesseract -l eng {} {.} txt >/dev/null; echo {.}.txt"
+# time ls ./files/$DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel --eta --sshloginfile nodeslist \
+#      --transfer \
+#      --return {.}.txt \
+#      --cleanup \
+#      "echo {} running on \`hostname\`; /usr/local/bin/tesseract -l eng {} {.} txt >/dev/null; echo {.}.txt"
 
+###
+##To do both hocr and txt files at the same time
+###
+# time ls ./files/$DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel --eta --sshloginfile nodeslist \
+#      --transfer \
+#      --return {.}.txt {.}.hocr \
+#      --cleanup \
+#      "echo {} running on \`hostname\`; /usr/local/bin/tesseract -l eng {} {.} txt >/dev/null; /usr/local/bin/tesseract -l eng {} {.} hocr >/dev/null; echo {.}.txt; echo {.}.hocr;"

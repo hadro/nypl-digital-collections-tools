@@ -1,9 +1,9 @@
 venv
 files/
-config.py*
+config.py
+config.pyc
 id2*
-createPDF2.py
-node*
+nodeslist
 ip*
 gnu*
 local*

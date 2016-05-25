@@ -29,7 +29,7 @@ UUID = raw_input("What UUID please?")
     # v - Cropped .jpeg (2560 pixels on the long side) N.B. Exists only for public domain assets
     # g - a "full-size" .jpeg derivative N.B. Exists only for public domain assets
 #Solicit the UUID from the users
-print 'For basic PDFs, best choice of derivative is going to be Q'
+print 'For basic PDFs, best choice of derivative is going to be q'
 PDF_deriv_type = raw_input('Enter a derivative type: ')
 
 #Make sure it's a valid UUID

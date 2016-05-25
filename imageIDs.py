@@ -9,6 +9,7 @@ import os.path
 import string
 import sys
 import re
+import config as cfg
 
 # A basic script to help get just the relevant imageIDs, in order, for a Digital Collections item
 # Just plug in the UUID for the item that you find on the Digital Collections item page
@@ -86,18 +87,18 @@ for i in range(number_of_captures):
 #Grab the item title, and do some cleanup to make it usable as a folder name
 table = string.maketrans("","")
 title = str(capture_response['nyplAPI']['response']['capture'][0]['title']).translate(table, string.punctuation).replace("  "," ").replace(" ","_")
-title = title[:100].rpartition('_')[0]
+title = title[:100]+'_'+uuid
 print "folder title will be '"+title+"'"
 
 #Create folder based on the item title
-if not os.path.exists(title):
-    os.makedirs(title)
+if not os.path.exists('./files/'+title):
+    os.makedirs('./files/'+title)
 
-if not os.path.isfile(title+'/'+title+'.txt'):
-	open(title+'/'+title+'.txt', 'a')
+if not os.path.isfile('./files/'+title+'/'+title+'.txt'):
+	open('./files/'+title+'/'+title+'.txt', 'a')
 
 # #Create the kind of deriv in the item-title folder
 for i in range(number_of_captures):
-	with open(title+'/'+title+'.txt', 'a') as myfile:
+	with open('./files/'+title+'/'+title+'.txt', 'a') as myfile:
 		myfile.write(captures[i]+'\n')
 	i+=1

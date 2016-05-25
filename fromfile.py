@@ -38,8 +38,8 @@ j = 1
 
 for i in captures:
 
-	if not os.path.isfile('files/'+folder_name+'/'+str("%04d" % j)+'_'+str(i)+str(deriv_type)+'.tif'):
-		urllib.urlretrieve(img_url_base+str(i)+'&t='+str(deriv_type)+'&download=1', 'files/'+folder_name+'/'+str("%04d" % j)+'_'+str(i)+str(deriv_type)+'.tif')
+	if not os.path.isfile('files/'+folder_name+'/'+str("%04d" % j)+'_'+str(i)+str(deriv_type)+'.jpg'):
+		urllib.urlretrieve(img_url_base+str(i)+'&t='+str(deriv_type)+'&download=1', 'files/'+folder_name+'/'+str("%04d" % j)+'_'+str(i)+str(deriv_type)+'.jpg')
 		print "%s done, %s of %s" % (int(i), j, len(captures))
 		j +=1
 	else:

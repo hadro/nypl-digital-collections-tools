@@ -1,16 +1,10 @@
 #!/bin/bash
 
 #adapted, and abused, from original script pasted here: https://github.com/jbarlow83/OCRmyPDF/issues/8
+#Also significantly inspired by Ryan Baumann's post here: #https://ryanfb.github.io/etc/2014/11/13/command_line_ocr_on_mac_os_x.html
+#Particularly the bit in footnote 3, which turned me onto GNU Parallel!
 
-
-# #Things to add:
-# - solicit variables directly from users, so they can supply e.g. item UUID DONE
-# - Translation from capture UUID to parent item UUID DONE
-# - Check to see if derivatives are already created, and if so, don't download them DONE
-# - Create directory based on item title, or some other element of the item metadata? DONE
-# - Check first to see if high-res assets exist before trying to proceed with the scrape part of the script DONE
-# - fix sort for the cases where item captures aren't in chronological order DONE
-# - figure out paging in order to deal with those cases where items will have more than 500 captures (do we want to deal with these cases?)
+## SETUP
 
 #set some variables for the rest of the script
 PROJECT=$1
@@ -18,15 +12,21 @@ DIRECTORY=./files/$1
 DERIV_TYPE_FOR_OCR=bitonal
 DERIV_TYPE_FOR_PDF=q
 
+## DOWNLOAD IMAGES
 
 # #run the scrape script to gather the derivatives that feed the PDF and OCR processes
-#python scrape.py $PROJECT
+python scrape.py $PROJECT
+
+## IMAGE PROCESSING
 
 #Make bitonal files!
+#Takes the largest derivative type and uses a threshold to make smaller, bitonal files that are better and faster for Tesseract processing
 sh bitonal.sh $PROJECT
 
-#Make PDF using Imagemagick Convert, using created date sort not alpha sort since capture names might not always be in sequential order:
+## For really nasty files, particularly unevenly lit images (microfilm, I'm looking at you...), you'll need something more powerful than basic Imagemagick convert. Uncomment the line below. Basically, instead of applying basic threshold, uses Imagemagick localthresh process: http://www.fmwconcepts.com/imagemagick/localthresh/index.php Much more processor intensive, but uses a radius approach to threshold that works a ton better for uneven imaging, particularly microfilm
+#sh localthreshold.sh $PROJECT
 
+#Make PDF using Imagemagick
 if [ -f "$DIRECTORY/$PROJECT.pdf" ]
 then
 	echo "$PROJECT.pdf found."
@@ -37,64 +37,34 @@ else
 	echo "PDF created from $DERIV_TYPE_FOR_PDF deriv jpg output"
 fi
 
-
-# OCR
-
-# OCR each page, and produce PDF file(s) containing the background (=text) layer
-
-# CAPTURE=1
-
-# for page in `ls -t ./$DIRECTORY/*\$DERIV_TYPE_FOR_OCR.jpg`	
-# 	do
-# 	    file_name=$CAPTURE\_$(basename $page)
-# 	    file_name_without_ext=${file_name%.*}
-
-# 	    echo "Character recognition $page"
-# 	    tesseract -l eng $page ./$DIRECTORY/$file_name_without_ext hocr >/dev/null
-# 	    python3 /usr/local/lib/python3.5/site-packages/ocrmypdf/hocrTransform.py -r 600 ./$DIRECTORY/$file_name_without_ext.hocr ./$DIRECTORY/$file_name_without_ext.pdf
-# 	    # Delete temporary hocr file
-# 	    rm ./$DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr
-# 	    rm ./$DIRECTORY/*$DERIV_TYPE_FOR_OCR.txt
-# 	    echo "done with page " $CAPTURE
-# 	    ((CAPTURE++))
-# 	done
-
-# #Let's try this with parallels instead...
-# time parallel -j+0 --eta 'tesseract -l eng {} {.} hocr > dev/null' ::: $DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg
-
-# time parallel -j+0 --eta 'python3 /usr/local/lib/python3.5/site-packages/ocrmypdf/hocrTransform.py -r 600 {} {.}.pdf' ::: $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr 
-
-#time ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel -j+0 --eta 'tesseract -l eng {} {.} hocr >/dev/null'
-#time ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel -j+0 --eta 'tesseract -l eng {} {.} txt >/dev/null'
-
+## OCR
 
 #USE DISTRIBUTED COMPUTING POWERS!
+#E.g., use GNU Parallel to distribute Tesseract OCR process across a cluster of IP addresses
 sh distributed.sh $PROJECT
 
+## MERGING INTO PDF
 
-
+# Produce PDF file from each hocr file that will be the background (=text) layer for the final PDF page
 
 time ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr | parallel -j+0 --eta 'python3 /usr/local/lib/python3.5/site-packages/ocrmypdf/hocrTransform.py -r 600 {} {.}.pdf' 
+#Uncomment these if you want script to clean up after itself...
 # #rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr
 # #rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.txt
 echo "done with hocr files for $DIRECTORY"
 
-# # Join PDF files into one file that contains all OCR backgrounds
+# # Join PDF files into one file that contains all OCR background files
 time pdftk `ls ./$DIRECTORY/*\$DERIV_TYPE_FOR_OCR.pdf` output $DIRECTORY/$PROJECT\_ocr.pdf
 echo "done with pdftk part 1"
-# Delete temporary scan*.pdf files
+# Uncomment to delete temporary pdf files
 #rm ./$DIRECTORY/*$DERIV_TYPE_FOR_OCR.pdf
 
-# Merge OCR background PDF into the main PDF document
+# Merge full-color page images with the hocr background file containing the embedded text
 time pdftk $DIRECTORY/$PROJECT.pdf multibackground $DIRECTORY/$PROJECT\_ocr.pdf output $DIRECTORY/$PROJECT\_final.pdf
+# Uncomment to cleanup temporary pdfs
 #rm $DIRECTORY/$PROJECT\_ocr.pdf
 #mv $DIRECTORY/$PROJECT\_final.pdf $DIRECTORY/$PROJECT.pdf
 
 echo "done with pdftk part 2";
 
 echo "You have now created and OCRed a PDF of $PROJECT. Good work!";
-
-#From Ryan Baumann: 
-#https://ryanfb.github.io/etc/2014/11/13/command_line_ocr_on_mac_os_x.html
-#parallel --bar "tesseract {} {.} pdf 2>/dev/null" ::: page_*.tif
-#ls -t ./$DIRECTORY/*\$DERIV_TYPE_FOR_OCR.jpg | parallel -j+0 --eta 'tesseract -l eng {} {.} hocr >/dev/null' 

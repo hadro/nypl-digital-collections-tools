@@ -4,7 +4,6 @@ import urllib
 import os.path
 import string
 import sys
-from time import sleep
 import subprocess
 
 #Aside from the modules above, you'll need to get an API key for the NYPL metadata API -- available here: http://api.repo.nypl.org/sign_up
@@ -95,28 +94,6 @@ else:
 	sys.exit(":-( the g derivs for this item are missing, make sure this is a public domain item?")
 
 #Grab the item title, and do some cleanup to make it usable as a folder name
-
-
-# #BASH COMMAND BELOW
-# # bashCommand = "cwm --rdf test.rdf --ntriples > test.nt"
-# # import subprocess
-# # process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
-
-# # DERIV_TYPE_FOR_OCR=g
-# # DERIV_TYPE_FOR_PDF=q
-
-# #convert = "convert -verbose -density 72x72 -quality 90 -resize 50%\ ls ./"+title+"/*"+PDF_deriv_type+".jpg "+title+"/"+title+".pdf"
-
-# # for 
-
-# # os.system("convert -verbose -density 72x72 -quality 90 -resize 50%\ ls ./"+title+"/*"+PDF_deriv_type+".jpg "+title+"/"+title+".pdf")
-# # print "PDF created from $DERIV_TYPE_FOR_PDF deriv jpg output"
-
-# # os.system(ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.jpg | parallel -j+0 --eta 'tesseract -l eng {} {.} hocr >/dev/null'
-# # ls $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr | parallel -j+0 --eta 'python3 /usr/local/lib/python3.5/site-packages/ocrmypdf/hocrTransform.py -r 600 {} {.}.pdf' 
-# rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.hocr
-# rm $DIRECTORY/*$DERIV_TYPE_FOR_OCR.txt
-# echo "done with hocr files for $DIRECTORY")
 
 table = string.maketrans("","")
 title = str(itemResponse['nyplAPI']['response']['capture'][0]['title']).translate(table, string.punctuation).replace("  "," ").replace(" ","_")

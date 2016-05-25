@@ -1,0 +1,4 @@
+#!/usr/bin/env python
+
+#Sign up for an API token here: http://api.repo.nypl.org/
+api_token = 'NYPL_Digital_Collections_API_Token_here'
